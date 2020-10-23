@@ -15,6 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 
 from work import views
 
@@ -28,4 +30,10 @@ urlpatterns = [
     path('vacancies/cat/<str:speciality>', views.speciality),
     path('vacancies/<int:vacancy_id>', views.vacancy),
     path('companies/<int:company_id>', views.company),
+    path('login/', views.MyLoginView.as_view(), name='login'),
+    path('register/', views.RegisterView.as_view(), name='register'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)

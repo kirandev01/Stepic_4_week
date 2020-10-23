@@ -124,3 +124,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = 'media'
+MEDIA_COMPANY_IMAGE_DIR = 'company_images'
+MEDIA_SPECIALITY_IMAGE_DIR = 'speciality_images'
+
+LOGIN_REDIRECT_URL = '/'
