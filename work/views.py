@@ -1,9 +1,11 @@
-from django.shortcuts import render
-from django.http import HttpResponseNotFound, HttpResponseServerError
+from django.shortcuts import render, redirect
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
 from django.db.models import Count
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import CreateView
+from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView
+from .forms import LoginForm, UserRegistrationForm
 
 from work.models import Company, Speciality, Vacancy
 
@@ -57,10 +59,43 @@ def company(request, company_id):
     return render(request, 'vacancies.html', {'title': title, 'head_title': head_title,
                                               'number_of_vacancies': number_of_vacancies, 'vacancies': vacancies})
 
-class RegisterView(CreateView):
-    form_class = UserCreationForm
-    success_url = 'login'
-    template_name = 'register.html'
+
+def user_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(request,
+                                username=cd['username'],
+                                password=cd['password'])
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('/')
+            else:
+                return HttpResponse('Disabled account')
+        else:
+            return HttpResponse('Invalid login')
+    else:
+        form = LoginForm()
+    return render(request, 'login.html', {'form': form})
+
+
+#class RegisterView(CreateView):
+#    form_class = UserCreationForm
+#    success_url = 'login'
+#    template_name = 'register.html'
+def register(request):
+    if request.method == 'POST':
+        user_form = UserRegistrationForm(request.POST)
+        if user_form.is_valid():
+            new_user = user_form.save(commit=False)
+            new_user.set_password(user_form.cleaned_data['password'])
+            new_user.save()
+            return redirect('/login/')
+    else:
+        user_form = UserRegistrationForm()
+    return render(request, 'register.html', {'form': user_form})
 
 
 class MyLoginView(LoginView):

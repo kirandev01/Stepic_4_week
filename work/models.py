@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from conf.settings import MEDIA_COMPANY_IMAGE_DIR, MEDIA_SPECIALITY_IMAGE_DIR
 
 
@@ -17,7 +17,7 @@ class Company(models.Model):
     location = models.CharField(max_length=50)
     logo = models.ImageField(upload_to=MEDIA_COMPANY_IMAGE_DIR )
     employee_count = models.IntegerField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='company',null=True, blank=True)
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='company',null=True, blank=True)
 
     def __str__(self):
         return f'{self.name}'
@@ -42,7 +42,7 @@ class Application(models.Model):
     writtem_phone = models.CharField(max_length=12)
     written_cover_letter = models.TextField()
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='applications')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='applications')
+    user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='applications')
 
     def __str__(self):
         return f'{self.written_username}'

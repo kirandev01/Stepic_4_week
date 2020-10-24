@@ -30,8 +30,8 @@ urlpatterns = [
     path('vacancies/cat/<str:speciality>', views.speciality),
     path('vacancies/<int:vacancy_id>', views.vacancy),
     path('companies/<int:company_id>', views.company),
-    path('login/', views.MyLoginView.as_view(), name='login'),
-    path('register/', views.RegisterView.as_view(), name='register'),
+    path('login/', views.user_login, name='login'),
+    path('register/', views.register, name='register'),
 ]
 
 if settings.DEBUG:
