@@ -18,4 +18,6 @@ class SpecialityAdmin(admin.ModelAdmin):
 
 @admin.register(Application)
 class Application(admin.ModelAdmin):
-    pass
+    list_filter = ('vacancy', 'user')
+
+

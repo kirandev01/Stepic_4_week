@@ -1,13 +1,16 @@
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
 from django.db.models import Count
 from django.contrib.auth.forms import UserCreationForm
-from django.views.generic import CreateView
+from django.urls import reverse
+from django.views import View
+from django.views.generic import CreateView, UpdateView
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView
-from .forms import LoginForm, UserRegistrationForm
+from .forms import LoginForm, UserRegistrationForm, ApplicationForm, CompanyForm
 
-from work.models import Company, Speciality, Vacancy
+from work.models import Company, Speciality, Vacancy, Application
 
 
 def main_view(request):
@@ -47,7 +50,27 @@ def vacancy(request, vacancy_id):
     title = 'Вакансия | Джуманджи'
     vacancy = Vacancy.objects.get(id=vacancy_id)
     company = vacancy.company
-    return render(request, 'vacancy.html', {'title': title, 'vacancy': vacancy, 'company': company})
+
+    if request.method == 'POST':
+        # Пользователь отправил отклик
+        form = ApplicationForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            application = Application.objects.create(
+                written_username=cd['written_username'],
+                writtem_phone=cd['writtem_phone'],
+                written_cover_letter=cd['written_cover_letter'],
+                vacancy=vacancy,
+                user=request.user
+            )
+            return redirect('/vacancies/'+str(vacancy_id)+'/send/')
+        else:
+            form = ApplicationForm()
+    else:
+        form = ApplicationForm()
+
+    return render(request, 'vacancy.html', {'title': title, 'vacancy': vacancy, 'company': company,
+                                            'form': form})
 
 
 def company(request, company_id):
@@ -59,6 +82,10 @@ def company(request, company_id):
     return render(request, 'vacancies.html', {'title': title, 'head_title': head_title,
                                               'number_of_vacancies': number_of_vacancies, 'vacancies': vacancies})
 
+
+class LoginView(LoginView):
+    redirect_authenticated_user = True
+    template_name = 'login.html'
 
 def user_login(request):
     if request.method == 'POST':
@@ -98,9 +125,34 @@ def register(request):
     return render(request, 'register.html', {'form': user_form})
 
 
+#@login_required
+def send(request, vacancy_id):
+    return render(request, 'sent.html')
+
+
 class MyLoginView(LoginView):
     redirect_authenticated_user = False
     template_name = "login.html"
+
+def company(request):
+    user_company = Company.objects.filter(owner=request.user)
+    if user_company:
+        return redirect('mycompany/company_update/<user_company.pk>')
+    else:
+        return render(request, 'company-create.html')
+
+
+class CompanyUpdateView(UpdateView):
+    model = Company
+    form_class = CompanyForm
+    success_url = '/'
+
+
+class CompanyCreateView(CreateView):
+    model = Company
+    form_class = CompanyForm
+    template_name = 'new-company.html'
+    success_url = 'mycompany/company_update/<object.pk>/'
 
 
 def custom_handler404(request, exception):

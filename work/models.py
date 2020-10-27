@@ -13,11 +13,12 @@ class Speciality(models.Model):
 
 
 class Company(models.Model):
-    name = models.CharField(max_length=100)
-    location = models.CharField(max_length=50)
-    logo = models.ImageField(upload_to=MEDIA_COMPANY_IMAGE_DIR )
-    employee_count = models.IntegerField()
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='company',null=True, blank=True)
+    name = models.CharField('Название компании', max_length=100)
+    location = models.CharField('География', max_length=50)
+    logo = models.ImageField('Логотип', upload_to=MEDIA_COMPANY_IMAGE_DIR )
+    employee_count = models.IntegerField('Количество человек в компании')
+    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='company', null=True, blank=True)
+    description = models.TextField('Информация о компании')
 
     def __str__(self):
         return f'{self.name}'
@@ -38,9 +39,9 @@ class Vacancy(models.Model):
 
 
 class Application(models.Model):
-    written_username = models.CharField(max_length=100)
-    writtem_phone = models.CharField(max_length=12)
-    written_cover_letter = models.TextField()
+    written_username = models.CharField('Вас зовут', max_length=100)
+    writtem_phone = models.CharField('Ваш телефон', max_length=12)
+    written_cover_letter = models.TextField('Сопроводительное письмо')
     vacancy = models.ForeignKey(Vacancy, on_delete=models.CASCADE, related_name='applications')
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='applications')
 

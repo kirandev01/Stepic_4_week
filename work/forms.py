@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit
 
+from work.models import Application, Company
+
 
 class LoginForm(forms.Form):
     username  = forms.CharField(label='Логин')
@@ -43,3 +45,28 @@ class UserRegistrationForm(forms.ModelForm):
         if cd['password'] != cd['password2']:
             raise forms.ValidationError('Passwords don\'t match.')
         return cd['password2']
+
+class ApplicationForm(forms.ModelForm):
+
+    class Meta:
+        model = Application
+        fields = ['written_username', 'writtem_phone', 'written_cover_letter']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+
+
+class CompanyForm(forms.ModelForm):
+
+    class Meta:
+        model = Company
+        fields = ['name', 'location', 'logo', 'employee_count', 'description']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'

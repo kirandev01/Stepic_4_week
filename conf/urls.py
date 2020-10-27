@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.auth.views import LogoutView
 
 from work import views
 
@@ -32,6 +33,14 @@ urlpatterns = [
     path('companies/<int:company_id>', views.company),
     path('login/', views.user_login, name='login'),
     path('register/', views.register, name='register'),
+    #path('login/', views.LoginView.as_view(), name='login'),
+    #path('register/', views.RegisterView.as_view(), name='register'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('vacancies/<int:vacancy_id>/send/', views.send, name='send'),
+    path('mycompany/', views.company, name='mycompany'),
+    path('mycompany/company_update/<int:pk>', views.CompanyUpdateView.as_view(), name='company_update'),
+    path('mycompany/company_create/', views.CompanyCreateView.as_view(), name='company_create')
+
 ]
 
 if settings.DEBUG:
