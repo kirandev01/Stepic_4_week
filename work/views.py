@@ -1,16 +1,11 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
-from django.db.models import Count
-from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse
-from django.views import View
-from django.views.generic import CreateView, UpdateView
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.views import LoginView
-from .forms import LoginForm, UserRegistrationForm, ApplicationForm, CompanyForm
+from django.db.models import Count
+from django.http import HttpResponse, HttpResponseNotFound, HttpResponseServerError
+from django.shortcuts import render, redirect, get_object_or_404
 
 from work.models import Company, Speciality, Vacancy, Application
+from .forms import LoginForm, UserRegistrationForm, ApplicationForm, CompanyForm, VacancyForm
 
 
 def main_view(request):
@@ -63,7 +58,7 @@ def vacancy(request, vacancy_id):
                 vacancy=vacancy,
                 user=request.user
             )
-            return redirect('/vacancies/'+str(vacancy_id)+'/send/')
+            return redirect('/vacancies/' + str(vacancy_id) + '/send/')
         else:
             form = ApplicationForm()
     else:
@@ -87,6 +82,7 @@ class LoginView(LoginView):
     redirect_authenticated_user = True
     template_name = 'login.html'
 
+
 def user_login(request):
     if request.method == 'POST':
         form = LoginForm(request.POST)
@@ -108,7 +104,7 @@ def user_login(request):
     return render(request, 'login.html', {'form': form})
 
 
-#class RegisterView(CreateView):
+# class RegisterView(CreateView):
 #    form_class = UserCreationForm
 #    success_url = 'login'
 #    template_name = 'register.html'
@@ -125,7 +121,7 @@ def register(request):
     return render(request, 'register.html', {'form': user_form})
 
 
-#@login_required
+# @login_required
 def send(request, vacancy_id):
     return render(request, 'sent.html')
 
@@ -134,25 +130,99 @@ class MyLoginView(LoginView):
     redirect_authenticated_user = False
     template_name = "login.html"
 
-def company(request):
-    user_company = Company.objects.filter(owner=request.user)
+
+def mycompany(request):
+    user_company = Company.objects.get(owner=request.user)
     if user_company:
-        return redirect('mycompany/company_update/<user_company.pk>')
+        # return redirect('mycompany/edit/<user_company.pk>')
+        return redirect('company_edit', pk=user_company.pk)
+    return render(request, 'company-create.html')
+
+
+# class CompanyUpdateView(UpdateView):
+#    model = Company
+#    form_class = CompanyForm
+# success_url = '/'
+
+
+# class CompanyEditView(CreateView):
+#     model = Company
+#     form_class = CompanyForm
+#     template_name = 'new-company.html'
+#     success_url = 'mycompany/edit/{id}/'
+#
+#     def post(self, request, *args, **kwargs):
+#         form = CompanyForm(request.POST, request.FILES)
+#         image_object = form.instance
+#         if form.is_valid():
+#             new_company = form.save(commit=False)
+#             new_company.owner = request.user
+#             new_company.save()
+#             #image_object = form.instance
+#             return redirect('/mycompany/edit/{id}/')
+#         else:
+#             #form = CompanyForm()
+#             return render(request, 'new-company.html', {'form': form, 'image_object': image_object})
+
+
+# def company_detail(request, pk):
+#     company = get_object_or_404(Company, pk)
+#     return render(request, 'company_detail.html', {'company': company})
+
+
+def company_new(request):
+    if request.method == 'POST':
+        form = CompanyForm(request.POST, request.FILES)
+        if form.is_valid():
+            company = form.save(commit=False)
+            company.owner = request.user
+            company.save()
+            return redirect('company_edit', pk=company.pk)
     else:
-        return render(request, 'company-create.html')
+        form = CompanyForm()
+    return render(request, 'company-edit.html', {'form': form})
 
 
-class CompanyUpdateView(UpdateView):
-    model = Company
-    form_class = CompanyForm
-    success_url = '/'
+def company_edit(request, pk):
+    company = get_object_or_404(Company, pk=pk)
+    if request.method == 'POST':
+        form = CompanyForm(request.POST, instance=company)
+        if form.is_valid():
+            company = form.save(commit=False)
+            company.owner = request.user
+            company.save()
+            return redirect('company_edit', pk=company.pk)
+    else:
+        form = CompanyForm(instance=company)
+    return render(request, 'company-edit.html', {'form': form})
 
 
-class CompanyCreateView(CreateView):
-    model = Company
-    form_class = CompanyForm
-    template_name = 'new-company.html'
-    success_url = 'mycompany/company_update/<object.pk>/'
+def vacancy_list(request):
+    vacancies = Vacancy.objects.filter(company__owner=request.user)
+    return render(request, 'vacancy-list.html', {'vacancies': vacancies})
+
+
+def vacancy_new(request):
+    if request.method == 'POST':
+        form = VacancyForm(request.POST)
+        if form.is_valid():
+            vacancy = form.save()
+            return redirect('vacancy_edit', pk=vacancy.pk)
+    else:
+        form = VacancyForm()
+    return render(request, 'vacancy-edit.html', {'form': form})
+
+
+def vacancy_edit(request, pk):
+    vacancy = get_object_or_404(Vacancy, pk=pk)
+    if request.method == 'POST':
+        form = VacancyForm(request.POST, instance=vacancy)
+        if form.is_valid():
+            vacancy = form.save()
+            return redirect('vacancy_edit', pk=vacancy.pk)
+    else:
+        form = VacancyForm(instance=vacancy)
+    return render(request, 'vacancy-edit.html', {'form': form})
 
 
 def custom_handler404(request, exception):

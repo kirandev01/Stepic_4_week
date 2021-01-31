@@ -33,15 +33,15 @@ urlpatterns = [
     path('companies/<int:company_id>', views.company),
     path('login/', views.user_login, name='login'),
     path('register/', views.register, name='register'),
-    #path('login/', views.LoginView.as_view(), name='login'),
-    #path('register/', views.RegisterView.as_view(), name='register'),
     path('logout/', LogoutView.as_view(), name='logout'),
-    path('vacancies/<int:vacancy_id>/send/', views.send, name='send'),
-    path('mycompany/', views.company, name='mycompany'),
-    path('mycompany/company_update/<int:pk>', views.CompanyUpdateView.as_view(), name='company_update'),
-    path('mycompany/company_create/', views.CompanyCreateView.as_view(), name='company_create')
-
-]
+    path('vacancies/<int:pk>/send/', views.send, name='send'),
+    path('mycompany/', views.mycompany, name='mycompany'),
+    path('mycompany/<int:pk>/', views.company_edit, name='company_edit'),
+    path('mycompany/new/', views.company_new, name='company_new'),
+    path('mycompany/vacancies/', views.vacancy_list, name='vacancy_list'),
+    path('mycompany/vacancies/new/', views.vacancy_new, name='vacancy_new'),
+    path('mycompany/vacancies/<int:pk>/', views.vacancy_edit, name='vacancy_edit')
+ ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL,

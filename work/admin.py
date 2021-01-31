@@ -20,4 +20,3 @@ class SpecialityAdmin(admin.ModelAdmin):
 class Application(admin.ModelAdmin):
     list_filter = ('vacancy', 'user')
 
-

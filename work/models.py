@@ -15,9 +15,10 @@ class Speciality(models.Model):
 class Company(models.Model):
     name = models.CharField('Название компании', max_length=100)
     location = models.CharField('География', max_length=50)
-    logo = models.ImageField('Логотип', upload_to=MEDIA_COMPANY_IMAGE_DIR )
+    logo = models.ImageField('Логотип', upload_to=MEDIA_COMPANY_IMAGE_DIR, blank=True, )
     employee_count = models.IntegerField('Количество человек в компании')
-    owner = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, related_name='company', null=True, blank=True)
+    owner = models.OneToOneField(get_user_model(), on_delete=models.CASCADE,
+                                 related_name='company')
     description = models.TextField('Информация о компании')
 
     def __str__(self):

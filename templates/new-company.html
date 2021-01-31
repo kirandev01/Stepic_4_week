@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block container %}
 {% load crispy_forms_tags %}
+
     <div class="row mt-5">
       <div class="col-12 col-lg-4">
         <aside class="pt-3 pb-4 px-4 mb-5 card">
@@ -21,10 +22,12 @@
                 Информация о компании обновлена
               </p>
               <form action="" method="post">
-                {% crispy form 'bootstrap4' %}
-                <div class="form-group">
-                  <input type="submit" class="btn btn-info" value="Сохранить">
+                <div class="col-6">
+                  <img src="{{ image_object.image.url }}" alt="" style="max-width: 120px;height: auto;">
                 </div>
+                {{ form.errors }}
+                {% crispy form 'bootstrap4' %}
+
               </form>
             </section>
             <!-- END Tab -->
